@@ -44,7 +44,9 @@ Program Requirements
 
 
 Example Execution
+
 -----------------------------------------------------------------------------------------
+
 PROGRAMMING ASSIGNMENT 6: Designing low-level I/O procedures 
 Written by: Sheperd Cooper 
  
@@ -72,6 +74,7 @@ You entered the following numbers:
 156, 34, -186, -145, 5, 23, 51, 0, 56, 11 
 The sum of these numbers is: 5 
 The rounded average is: 1 
- 
-Thanks for playing! 
+
+Thanks for playing!
+
 -----------------------------------------------------------------------------------------

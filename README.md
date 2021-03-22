@@ -1,4 +1,4 @@
-# masm-low-level-I-O-procedures
+# masm-low-level-IO-procedures
 
 Program Description
     Write and test a MASM program to perform the following tasks (check the Requirements section for specifics on program modularization):

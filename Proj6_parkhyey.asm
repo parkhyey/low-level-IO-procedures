@@ -138,26 +138,26 @@ ReadVal		PROC
 	LOCAL	isNegative:DWORD, isOverFlow:DWORD, isSigned:DWORD
 	PUSHAD
 
-	MOV	EAX, [EBP + 20]			; address of prompt1 in EAX
+	MOV	EAX, [EBP + 20]	; address of prompt1 in EAX
 _getInput:
-	MOV	ESI, [EBP + 12]			; address of userInput
-	MOV	ECX, [EBP + 8]			; set loop counter with LENGTHOF userInput
-	MOV	isNegative, 0			; reset local variables
+	MOV	ESI, [EBP + 12]	; address of userInput
+	MOV	ECX, [EBP + 8]	; set loop counter with LENGTHOF userInput
+	MOV	isNegative, 0	; reset local variables
 	MOV	isOverFlow, 0
 	MOV	isSigned, 0
 	mGetString	EAX, ESI, ECX
 
 ; check each string byte if valid
-	MOV	EBX, 0				; work as a counter	
+	MOV	EBX, 0		; work as a counter	
 	CLD
 _checkStr:
 	; check string for invalid characters
 	LODSB
 	CMP	AL, 0
 	JE	_null
-	CMP	AL, 43				; check for '+' sign
+	CMP	AL, 43		; check for '+' sign
 	JE	_signed
-	CMP	AL, 45				; check for '-' sign
+	CMP	AL, 45		; check for '-' sign
 	JE	_signed
 	CMP	AL, 48
 	JL	_invalid
@@ -171,52 +171,52 @@ _checkStr:
 ; if input is negative number
 _signed:
 	CMP	EBX, 0
-	JNE	_invalid			; if sign found in non-first digit, invalid
-	MOV	isSigned, 1			; set isSigned to True
-	CMP	AL, 43				; if it was '+' sign, go back to loop
+	JNE	_invalid	; if sign found in non-first digit, invalid
+	MOV	isSigned, 1	; set isSigned to True
+	CMP	AL, 43		; if it was '+' sign, go back to loop
 	JE	_goBackToLoop
-	MOV	isNegative, 1			; otherwise, set isNegative
+	MOV	isNegative, 1	; otherwise, set isNegative
 	JMP	_goBackToLoop
 
 ; if string is invalid
 _invalid:
-	MOV	EAX, [EBP + 16]			; address of prompt2, setup for reprompt user input
+	MOV	EAX, [EBP + 16]	; address of prompt2, setup for reprompt user input
 	JMP	_getInput
 
 ; check if no entry or end of string
 _null:
-	CMP	EBX, 0				; if no entry
+	CMP	EBX, 0		; if no entry
 	JE	_invalid
-	CMP	EBX, isSigned			; if EBX=isSigned=1 (only sign byte is entered)
+	CMP	EBX, isSigned	; if EBX=isSigned=1 (only sign byte is entered)
 	JE	_invalid
 
 ; setup for StrToNum procedure
 _conversion:
 	MOV	isOverFlow, 0			
 	MOV	EBX, [EBP + 24]
-	PUSH	EBX				; address of convertdNum on stack
+	PUSH	EBX		; address of convertdNum on stack
 	MOV	EBX, [EBP + 12]
-	PUSH	EBX				; address of userInput on stack
+	PUSH	EBX		; address of userInput on stack
 	MOV	EBX, [EBP + 8]
-	PUSH	EBX				; LENGTHOF userInput on stack
+	PUSH	EBX		; LENGTHOF userInput on stack
 	LEA	EBX, isOverFlow
-	PUSH	EBX				; address of isOverFlow on stack
-	CALL	StrToNum			; string to number conversion
+	PUSH	EBX		; address of isOverFlow on stack
+	CALL	StrToNum	; string to number conversion
 
 ; check if the number is out of range
 	MOV	EBX, isOverFlow
-	CMP	EBX, 1				; if isOverFlow is 1
-	JE	_invalid			; the number is out of range
+	CMP	EBX, 1		; if isOverFlow is 1
+	JE	_invalid	; the number is out of range
 
 ; if the input was negative number
 	MOV	EDI, [EBP + 24]
-	MOV	EDX, [EDI]			; convertdNum in EDX
-	CMP	isNegative, 1			; if it's negative
+	MOV	EDX, [EDI]	; convertdNum in EDX
+	CMP	isNegative, 1	; if it's negative
 	JNE	_end					
-	NEG	EDX				; negate the result	
+	NEG	EDX		; negate the result	
 	
 _end:
-	MOV	[EDI], EDX			; store the result in convertdNum
+	MOV	[EDI], EDX	; store the result in convertdNum
 	POPAD
 	RET	20
 ReadVal		ENDP
@@ -238,40 +238,40 @@ StrToNum	PROC
 	MOV	EBP, ESP
 	PUSHAD
 
-	MOV	EDI, [EBP + 20]			; address of convertdNum
-	MOV	ESI, [EBP + 16]			; address of userInput
-	MOV	ECX, [EBP + 12]			; set loop counter with LENGTHOF userInput
+	MOV	EDI, [EBP + 20]	; address of convertdNum
+	MOV	ESI, [EBP + 16]	; address of userInput
+	MOV	ECX, [EBP + 12]	; set loop counter with LENGTHOF userInput
 
 ; get each string byte into convertdNum
 	CLD
 	MOV	EDX, 0
-	MOV	[EDI], EDX			; reset convertdNum for setup
+	MOV	[EDI], EDX	; reset convertdNum for setup
 
 _conversion:
 	LODSB
 	CMP	EAX, 0
 	JE	_end
-	CMP	EAX, 43				; check for plus sign
-	JE	_nextLoop			; move to next byte
-	CMP	EAX, 45				; check for negative sign
+	CMP	EAX, 43		; check for plus sign
+	JE	_nextLoop	; move to next byte
+	CMP	EAX, 45		; check for negative sign
 	JE	_nextLoop			
-	SUB	EAX, 48				; convert string to number using ASCII table
+	SUB	EAX, 48		; convert string to number using ASCII table
 	MOV	EBX, EAX
-	MOV	EAX, [EDI]			; get the already-converted parts
+	MOV	EAX, [EDI]	; get the already-converted parts
 	MOV	EDX, 10			
-	IMUL	EDX				; multiply by 10 to make them into the next higher digits
-	JO	_outOfRange			; check overflow flag
-	ADD	EAX, EBX			; add newly converted digit 
-	JO	_outOfRange			; check overflow flag again
+	IMUL	EDX		; multiply by 10 to make them into the next higher digits
+	JO	_outOfRange	; check overflow flag
+	ADD	EAX, EBX	; add newly converted digit 
+	JO	_outOfRange	; check overflow flag again
 	MOV	[EDI], EAX	
-	MOV	EAX, 0				; reset EAX
+	MOV	EAX, 0		; reset EAX
 	_nextLoop:
 	LOOP	_conversion
 
 ; if overflow flag is set
 _outOfRange:
-	MOV	EBX, [EBP + 8]			; address of isOverFlow
-	MOV	EAX, 1				; set isOverFlow to 1(True)
+	MOV	EBX, [EBP + 8]	; address of isOverFlow
+	MOV	EAX, 1		; set isOverFlow to 1(True)
 	MOV	[EBX], EAX
 
 _end:	
@@ -297,21 +297,21 @@ DisplayArray	PROC
 	MOV	EBP, ESP
 	PUSHAD
 
-	mDisplayString	[EBP + 12]		; address of dispTitle
+	mDisplayString	[EBP + 12]	; address of dispTitle
 	CALL	Crlf
-	MOV	ESI, [EBP + 20]			; address of numArray
-	MOV	ECX, [EBP + 16]			; set loop counter with LENGTHOF numArray
+	MOV	ESI, [EBP + 20]	; address of numArray
+	MOV	ECX, [EBP + 16]	; set loop counter with LENGTHOF numArray
 
 ; convert number to string and display
 _displayLoop:
 	MOV	EBX, [ESI]
-	PUSH	EBX				; numArray on stack
-	CALL	WriteVal			; convert number to string and print it		
-	ADD	ESI, 4				; point to next place
+	PUSH	EBX		; numArray on stack
+	CALL	WriteVal	; convert number to string and print it		
+	ADD	ESI, 4		; point to next place
 	CMP	ECX, 1
-	JE	_end				; no comma at the end
+	JE	_end		; no comma at the end
 	MOV	EDX, [EBP + 8]			
-	mDisplayString	EDX			; display comma
+	mDisplayString	EDX	; display comma
 	LOOP	_displayLoop
 
 _end:
@@ -340,30 +340,30 @@ DisplaySumAvg	PROC
 	PUSHAD	
 
 ; calculate and display sum
-	mDisplayString	[EBP + 12]		; display address of sumTitle
-	MOV	ESI, [EBP + 20]			; address of numArray
-	MOV	ECX, [EBP + 16]			; LENGTHOF numArray
-	MOV	EAX, 0				; reset EAX
+	mDisplayString	[EBP + 12]	; display address of sumTitle
+	MOV	ESI, [EBP + 20]		; address of numArray
+	MOV	ECX, [EBP + 16]		; LENGTHOF numArray
+	MOV	EAX, 0			; reset EAX
 _sum:
-	ADD	EAX, [ESI]			; add up array elements to EAX
+	ADD	EAX, [ESI]	; add up array elements to EAX
 	ADD	ESI, 4
 	LOOP	_sum	
-	PUSH	EAX				; EAX holds sum
-	CALL	WriteVal			; convert to string and display sum
+	PUSH	EAX		; EAX holds sum
+	CALL	WriteVal	; convert to string and display sum
 	CALL	Crlf
 
 ; calculate and display average
-	mDisplayString	[EBP + 8]		; display address of avgTitle
-	MOV	EBX, [EBP + 16]			; LENGTHOF numArray
-	CDQ					; precondition for IDIV
-	IDIV	EBX				; divide the sum by LENGTHOF numArray
-	ADD	EDX, EDX			; double the remainder
-	CMP	EDX, EBX			; compare with divisor
+	mDisplayString	[EBP + 8]	; display address of avgTitle
+	MOV	EBX, [EBP + 16]		; LENGTHOF numArray
+	CDQ			; precondition for IDIV
+	IDIV	EBX		; divide the sum by LENGTHOF numArray
+	ADD	EDX, EDX	; double the remainder
+	CMP	EDX, EBX	; compare with divisor
 	JL	_saveAvg
 	INC	EAX
 _saveAvg:
-	PUSH	EAX				; EAX holds average
-	CALL	WriteVal			; convert to string and display average
+	PUSH	EAX		; EAX holds average
+	CALL	WriteVal	; convert to string and display average
 	CALL	Crlf
 
 	POPAD
@@ -389,45 +389,45 @@ DisplaySumAvg	ENDP
 WriteVal	PROC
 	LOCAL	outString[21]:BYTE, getStack:DWORD, isNegative:DWORD
 	PUSHAD
-	MOV	ECX, 0				; reset counter
+	MOV	ECX, 0		; reset counter
 
 ; convert number to string
 	MOV	EBX, 10
-	MOV	EAX, [EBP + 8]			; numeric SDWORD value in EAX
-	CMP	EAX, 0				; if the number is negative
+	MOV	EAX, [EBP + 8]	; numeric SDWORD value in EAX
+	CMP	EAX, 0		; if the number is negative
 	JGE	_getDigits
-	MOV	isNegative, 1			; set isNegative to 1(True)
+	MOV	isNegative, 1	; set isNegative to 1(True)
 	NEG	EAX						
 	
 ; divide integer by 10 and save the remainder to get each digit
 _getDigits:
 	CDQ
-	IDIV	EBX				; divide by 10
-	PUSH	EDX				; push the remainder to the stack(order reversed)
-	INC	ECX				; increase counter to get the number of digits
+	IDIV	EBX		; divide by 10
+	PUSH	EDX		; push the remainder to the stack(order reversed)
+	INC	ECX		; increase counter to get the number of digits
 	CMP	EAX, 0
 	JNE	_getDigits				
 	
-	LEA	EDI, outString			; set up for STOSB
+	LEA	EDI, outString	; set up for STOSB
 	CLD
 
 ; if the number is negative
 	CMP	isNegative, 1
 	JNE	_convert
-	MOV	AL, 45				; add '-' sign in front
+	MOV	AL, 45		; add '-' sign in front
 	STOSB
 
 _convert:
-	POP	getStack			; get the remainder from stack(order reversed back)	
+	POP	getStack	; get the remainder from stack(order reversed back)	
 	MOV	AL, BYTE PTR getStack
-	ADD	AL, 48				; restore the string value
-	STOSB					; save the byte in EDI(outString)
-	LOOP	_convert
-	MOV	AL, 0				; add 0 for null-terminated string
+	ADD	AL, 48		; restore the string value
+	STOSB			; save the byte in EDI(outString)
+	LOOP	_convert 
+	MOV	AL, 0		; add 0 for null-terminated string
 	STOSB
 	
 	LEA	EDX, outString
-	mDisplayString	EDX			; display the outString
+	mDisplayString	EDX	; display the outString
 
 	POPAD
 	RET	4
